@@ -5,7 +5,7 @@ import {
 } from "lit";
 import { customElement, property } from "lit/decorators.js";
 import "./sip-doorbell-video";
-import "./sip-doorbell-phone"
+import "./sip-doorbell-phone";
 import { Ref, createRef, ref } from 'lit/directives/ref.js';
 import { SipDoorbellPhone } from "./sip-doorbell-phone";
 import { SipDoorbellVideo } from "./sip-doorbell-video";

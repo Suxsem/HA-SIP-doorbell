@@ -10,7 +10,7 @@ import { Ref, createRef, ref } from 'lit/directives/ref.js';
 @customElement('sip-doorbell-phone')
 export class SipDoorbellPhone extends LitElement {
 
-    ua: UA;
+    ua?: UA;
     sipPhoneSession?: RTCSession;
     remoteAudioRef: Ref<HTMLAudioElement> = createRef();
     inCall = false;
@@ -34,8 +34,8 @@ export class SipDoorbellPhone extends LitElement {
         }
     }
 
-    constructor() {
-        super();
+    async connectedCallback() {
+        super.connectedCallback();
         
         if (!this.config!.sip_ws) {
             throw new Error("Missing `sip_ws` eg. `wss://sip.mydomain.com:443/ws`");
@@ -62,7 +62,7 @@ export class SipDoorbellPhone extends LitElement {
         const socket = new WebSocketInterface(this.config.sip_ws);
         const configuration: UAConfiguration = {
             sockets: [socket],
-            uri: "sip: " + this.config.sip_ext + "@" + this.config.sip_domain,
+            uri: "sip:" + this.config.sip_ext + "@" + this.config.sip_domain,
             authorization_user: this.config.sip_user,
             password: this.config.sip_password,
             register: true,
@@ -71,12 +71,6 @@ export class SipDoorbellPhone extends LitElement {
 
         this.ua = new UA(configuration);
         this.ua.on('newRTCSession', this.newRTCSession);
-
-    }
-
-    async connectedCallback() {
-        super.connectedCallback();
-        console.log("sip-doorbell-phone connectedCallback")
 
         await this.updateComplete;
 
@@ -307,11 +301,11 @@ export class SipDoorbellPhone extends LitElement {
             pcConfig: iceConfig as RTCConfiguration
         };
 
-        this.ua.call("sip:" + extension + "@" + this.config.sip_domain, options);
+        this.ua?.call("sip:" + extension + "@" + this.config.sip_domain, options);
     }
 
     public endCall() {
-        this.ua.terminateSessions();
+        this.ua?.terminateSessions();
     }
 
     audioEvent(e: Event) {
