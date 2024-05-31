@@ -1,0 +1,75 @@
+import { LitElement, html } from "lit";
+import { customElement } from "lit/decorators.js";
+import { Ref, createRef, ref } from 'lit/directives/ref.js';
+import { SimpleUser, SimpleUserOptions, SessionDescriptionHandlerOptions } from "sip.js/lib/platform/web";
+
+@customElement('sip-doorbell-phone-2')
+class SipDoorbellPhone2 extends LitElement {
+
+    remoteAudioRef: Ref<HTMLAudioElement> = createRef();
+
+    server = "wss://redacted:443/ws";
+    destination = "sip:555@redacted";
+    aor = "sip:8003@redacted";
+    authorizationUsername = "8003";
+    authorizationPassword = "redacted";
+
+    iceConfig = {
+        "iceCandidatePoolSize": 10,
+        "iceTransportPolicy": "all",
+        "iceServers": [
+            {
+                "urls": "stun:stun.relay.metered.ca:80"
+            },
+            {
+                "urls": "turn:standard.relay.metered.ca:80",
+                "username": "redacted",
+                "credential": "redacted/"
+            },
+        ],
+        "rtcpMuxPolicy": "require"
+    };
+
+    constructor() {
+        super();
+
+    }
+
+    async connectedCallback() {
+        super.connectedCallback();
+
+        await this.updateComplete;
+
+        const options: SimpleUserOptions = {
+            aor: this.aor,
+            media: {
+                remote: {
+                    audio: this.remoteAudioRef.value
+                }
+            },
+            userAgentOptions: {
+                authorizationPassword: this.authorizationPassword,
+                authorizationUsername: this.authorizationUsername,
+                sessionDescriptionHandlerFactoryOptions: {
+                    peerConnectionConfiguration: this.iceConfig
+                }
+            },
+        };
+
+        const simpleUser = new SimpleUser(this.server, options);
+
+        await simpleUser.connect();
+
+        //await simpleUser.register(); //NOT needed
+
+        await simpleUser.call(this.destination);
+
+    }
+
+    render() {
+        return html`
+            <audio ${ref(this.remoteAudioRef)} controls></audio>
+        `;
+    }
+
+}
