@@ -148,7 +148,7 @@ class SipDoorbell extends LitElement {
     }
 
     private openDoor() {
-        this.hass.callService("shell_command", "door_open", {});
+        this.hass.callService("script", "apri_portone", {});
     }
 
     private autoCall() {
